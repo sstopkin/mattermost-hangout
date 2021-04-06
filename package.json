@@ -18,10 +18,11 @@
   },
   "homepage": "https://github.com/chitter99/mattermost-hangout#readme",
   "dependencies": {
-    "body-parser": "^1.16.1",
-    "express": "^4.14.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "express-handlebars": "^3.0.0",
-    "googleapis": "^16.1.0",
-    "morgan": "^1.8.1"
+    "googleapis": "^70.0.0",
+    "morgan": "^1.10.0",
+    "uuid": "^8.3.2"
   }
 }

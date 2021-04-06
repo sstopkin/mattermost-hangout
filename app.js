@@ -1,6 +1,5 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
-const bodyParser = require('body-parser');
 const log = require('./app/lib/log.js');
 
 const app = express();
@@ -13,7 +12,7 @@ app.engine('handlebars', exphbs({
 app.set('view engine', 'handlebars');
 app.set('views', __dirname + '/app/views');
 
-app.use(bodyParser.urlencoded());
+app.use(express.urlencoded({ extended: true }))
 app.use(express.static(__dirname + '/app/public'));
 
 require(__dirname + '/app/routes')(app);

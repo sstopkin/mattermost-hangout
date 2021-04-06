@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:14-slim
 
 RUN mkdir -p /usr/src/hangout
 WORKDIR /usr/src/hangout
