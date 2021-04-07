@@ -1,9 +1,9 @@
 const fs = require('fs')
 const path = require('path');
 
-var {google} = require('googleapis');
+const {google} = require('googleapis');
 const calendar = google.calendar('v3');
-const uuidv1 = require('uuid/v1');
+const { v4: uuidv4 } = require('uuid');
 
 const config = require('./config.js');
 
@@ -94,7 +94,7 @@ module.exports = (function() {
 	
 	function createHangoutMeeting({ user_name, title, trigger_id }, callback) {
 		const now = (new Date()).toISOString();
-		const uuid = uuidv1();
+		const uuid = uuidv4();
 		loadAuth();
 
 		const eventTitle = title || (user_name + '\'s meeting');
