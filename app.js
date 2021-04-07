@@ -18,8 +18,9 @@ app.use(express.static(__dirname + '/app/public'));
 require(__dirname + '/app/routes')(app);
 
 log.debug("Auth.js is located at " + require('./app/lib/config.js').getAuthPath());
+log.debug("MM hostname is: " + process.env.HOSTNAME)
 
 const port = Number(process.env.PORT || 5000);
-app.listen(port, function() {
+app.listen(port, function () {
 	log.info('Listening on ' + port);
 });

@@ -1,9 +1,8 @@
 const fs = require('fs')
 const path = require('path');
 
-const {google} = require('googleapis');
+const { google } = require('googleapis');
 const calendar = google.calendar('v3');
-const { v4: uuidv4 } = require('uuid');
 
 const config = require('./config.js');
 
@@ -11,16 +10,16 @@ let googleToken
 
 const CALENDAR_ID = 'primary'
 
-module.exports = (function() {
+module.exports = (function () {
 	const authPath = config.getAuthPath();
 	const oauth2Client = new google.auth.OAuth2(process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.REDIRECT_URL);
 
 	function loadAuth() {
-		if(!oauth2Client.access_token && !oauth2Client.refresh_token) {
-			if(fs.existsSync(authPath)) {
+		if (!oauth2Client.access_token && !oauth2Client.refresh_token) {
+			if (fs.existsSync(authPath)) {
 				console.log('Load ' + authPath);
 				googleToken = JSON.parse(fs.readFileSync(authPath, 'utf8'));
-				if(typeof(googleToken) != 'undefined') {
+				if (typeof (googleToken) != 'undefined') {
 					oauth2Client.setCredentials({
 						access_token: googleToken.access_token,
 						refresh_token: googleToken.refresh_token
@@ -34,39 +33,36 @@ module.exports = (function() {
 			}
 		}
 	}
-	
+
 	function generateAuthUrl() {
 		return oauth2Client.generateAuthUrl({
 			access_type: 'offline',
 			scope: 'https://www.googleapis.com/auth/calendar'
 		});
 	}
-	
+
 	function getToken(code, callback) {
-		oauth2Client.getToken(code, function(err, token) {
+		oauth2Client.getToken(code, function (err, token) {
 			if (err) {
 				return callback((err.toString()).replace('Error: ', ''), null);
 			}
 
 			console.log('Received token: ', token);
-			
-			if(typeof token.refresh_token === 'undefined') {
+
+			if (typeof token.refresh_token === 'undefined') {
 				/* Token is refreshed by google */
-				if(typeof googleToken === 'undefined')
-				{
+				if (typeof googleToken === 'undefined') {
 					loadAuth();
-					if(typeof googleToken === 'undefined')
-					{
+					if (typeof googleToken === 'undefined') {
 						console.log('Google Error: Google trying to refresh token but we do not have an access token!');
 						return callback('no_auth', null);
 					}
 				}
-				if(typeof googleToken.refresh_token === 'undefined') 
-				{
+				if (typeof googleToken.refresh_token === 'undefined') {
 					return callback('no_refresh_token', null);
 				}
 				token.refresh_token = googleToken.refresh_token;
-			}		
+			}
 			googleToken = token;
 
 			const targetDir = path.dirname(authPath);
@@ -77,13 +73,12 @@ module.exports = (function() {
 			}
 
 			fs.writeFile(authPath, JSON.stringify(googleToken), function (err, data) {
-				if (err)
-				{
+				if (err) {
 					console.log('File Error!');
 					return callback((err.toString()).replace('Error: ', ''), null);
 				}
 			});
-			
+
 			oauth2Client.setCredentials({
 				access_token: googleToken.access_token,
 				refresh_token: googleToken.refresh_token
@@ -91,10 +86,9 @@ module.exports = (function() {
 			return callback(null, token);
 		});
 	}
-	
+
 	function createHangoutMeeting({ user_name, title, trigger_id }, callback) {
 		const now = (new Date()).toISOString();
-		const uuid = uuidv4();
 		loadAuth();
 
 		const eventTitle = title || (user_name + '\'s meeting');
@@ -106,15 +100,15 @@ module.exports = (function() {
 				conferenceData: {
 					createRequest: {
 						conferenceSolutionKey: {
-						//The conference solution type.
-						// If a client encounters an unfamiliar or empty type, it should still be able to display the entry points. However, it should disallow modifications.
-						//
-						// The possible values are:
-						//
-						// "eventHangout" for Hangouts for consumers (http://hangouts.google.com)
-						// "eventNamedHangout" for classic Hangouts for Google Workspace users (http://hangouts.google.com)
-						// "hangoutsMeet" for Google Meet (http://meet.google.com)
-						// "addOn" for 3P conference providers
+							//The conference solution type.
+							// If a client encounters an unfamiliar or empty type, it should still be able to display the entry points. However, it should disallow modifications.
+							//
+							// The possible values are:
+							//
+							// "eventHangout" for Hangouts for consumers (http://hangouts.google.com)
+							// "eventNamedHangout" for classic Hangouts for Google Workspace users (http://hangouts.google.com)
+							// "hangoutsMeet" for Google Meet (http://meet.google.com)
+							// "addOn" for 3P conference providers
 							type: 'hangoutsMeet',
 						},
 						requestId: trigger_id || ('some-random-string_' + now)
@@ -134,26 +128,18 @@ module.exports = (function() {
 				end: {
 					dateTime: now,
 				},
-                conferenceData: {
-                    createRequest: {
-                        requestId: uuid,
-                        conferenceSolutionKey: {
-                            type: 'hangoutsMeet'
-                        }
-                    }
-                },
 				attendees: [],
 			},
-		}, function(err, event) {
-			if(err != null || event == null) {
+		}, function (err, event) {
+			if (err != null || event == null) {
 				return callback((err.toString()).replace('Error: ', ''), null);
 			}
 			if (process.env.AUTO_DELETE_EVENT) {
 				calendar.events.delete({
 					auth: oauth2Client,
 					calendarId: CALENDAR_ID,
-					eventId: event.id,
-				}, function(err) {
+					eventId: event.data.id,
+				}, function (err) {
 					if (err) {
 						console.error('could not delete calendar event!', err)
 					}
@@ -162,7 +148,7 @@ module.exports = (function() {
 			return callback(null, event);
 		});
 	}
-	
+
 	return {
 		getToken(code, callback) {
 			return getToken(code, callback);
