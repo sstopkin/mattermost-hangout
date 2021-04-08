@@ -36,6 +36,7 @@ module.exports = (function () {
 
 	function generateAuthUrl() {
 		return oauth2Client.generateAuthUrl({
+			prompt: 'consent',
 			access_type: 'offline',
 			scope: 'https://www.googleapis.com/auth/calendar'
 		});

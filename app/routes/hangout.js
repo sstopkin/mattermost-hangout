@@ -3,8 +3,17 @@ const google = require('../lib/google.js');
 const mattermost = require('../lib/mattermost.js');
 const log = require('../lib/log.js');
 
+function checkClientIp(req, res, next) {
+	log.debug('req.connection.remoteAddress: ' + req.connection.remoteAddress)
+	if (process.env.IP_WHITE_LIST.includes(req.connection.remoteAddress) || process.env.IP_WHITE_LIST.includes('0.0.0.0')) {
+		next();
+	} else {
+		res.status(401).send('No dice!');
+	}
+}
+
 module.exports = function (app) {
-	app.post('/', function (req, res) {
+	app.post('/', checkClientIp, function (req, res) {
 		if (!req.body.user_name) {
 			return core.error(res, 'Parameter user_name is missing!');
 		}
