@@ -19,7 +19,7 @@ require(__dirname + '/app/routes')(app);
 
 log.debug("Auth.js is located at " + require('./app/lib/config.js').getAuthPath());
 log.debug("MM hostname is: " + process.env.HOSTNAME)
-log.debug("IP whire list: " + process.env.IP_WHITE_LIST)
+log.debug("IP white list: " + process.env.IP_WHITE_LIST)
 
 const port = Number(process.env.PORT || 5000);
 app.listen(port, function () {

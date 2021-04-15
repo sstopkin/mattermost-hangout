@@ -17,7 +17,7 @@ module.exports = function (app) {
 		if (!req.body.user_name) {
 			return core.error(res, 'Parameter user_name is missing!');
 		}
-		if ((process.env.MM_VERIFY_TOKEN && req.body.token) && process.env.MM_VERIFY_TOKEN !== req.body.token) {
+		if ((process.env.MM_VERIFY_TOKEN && req.body.token) && (!process.env.MM_VERIFY_TOKEN.includes(req.body.token))) {
 			console.log('incoming token', req.body.token, 'doesn\'t match provided env var MM_VERIFY_TOKEN');
 			res.status(401).send(JSON.stringify({ error: 'invalid auth token' }));
 			return;
